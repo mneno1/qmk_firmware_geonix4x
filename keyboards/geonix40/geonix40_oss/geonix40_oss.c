@@ -109,8 +109,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // driver, so routing through host_keyboard_send() is correct here.
 // ============================================================================
 
+// has_anykey() checks nkro_report->bits when NKRO is enabled, but
+// add_key_to_report() places keys in keyboard_report->keys first. Check
+// both so OSM clears correctly regardless of NKRO state.
+static bool any_key_in_report(void) {
+    for (uint8_t i = 0; i < KEYBOARD_REPORT_KEYS; i++) {
+        if (keyboard_report->keys[i]) return true;
+    }
+#ifdef NKRO_ENABLE
+    for (uint8_t i = 0; i < NKRO_REPORT_BITS; i++) {
+        if (nkro_report->bits[i]) return true;
+    }
+#endif
+    return false;
+}
+
 // Compute mods the same way the original send_6kro_report/send_nkro_report do:
-// include oneshot mods, then clear them if any regular key is held.
+// include oneshot mods, then clear them once a regular key is held.
 static uint8_t compute_mods_for_report(void) {
     uint8_t mods = get_mods() | get_weak_mods();
     uint8_t osm  = get_oneshot_mods();
@@ -119,7 +134,7 @@ static uint8_t compute_mods_for_report(void) {
             clear_oneshot_mods();
         } else {
             mods |= osm;
-            if (has_anykey()) {
+            if (any_key_in_report()) {
                 clear_oneshot_mods();
             }
         }
