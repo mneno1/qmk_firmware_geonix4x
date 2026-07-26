@@ -62,7 +62,6 @@
 // Row 3 (bot row):  LEDs 36,--,37,38,39,40,41,42,43,44,45,46
 //                        MO2,   DEL,CTL,ALT,GUI,SPC,RGUI,/,<,v,>
 #define LED_CONNECTION_INDEX 11  // BSPC - connection type indicator
-#define LED_CONNECTION_INDICATOR_ENABLE 1  // Always show connection type on LED_CONNECTION_INDEX
 #define LED_CAP_INDEX        12  // ESC  - Caps Lock indicator
 #define LED_WIN_L_INDEX      40  // LGUI - Win Lock indicator (Win key lights up when locked)
 #define LED_BATT_INDEX       36  // MO2  - Battery status indicator

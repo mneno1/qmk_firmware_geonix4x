@@ -54,14 +54,7 @@ led_config_t g_led_config = {
 // clang-format on
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    bool result = kb_rgb_matrix_indicators_common(led_min, led_max);
-
-    // Show current BLE channel / 2.4G persistently (not just during pairing or Fn-hold)
-    if (!Led_Rf_Pair_Flg && !Key_Fn_Status && Keyboard_Info.Key_Mode != QMK_USB_MODE) {
-        kb_show_current_connection_mode();
-    }
-
-    return result;
+    return kb_rgb_matrix_indicators_common(led_min, led_max);
 }
 
 void notify_usb_device_state_change_user(struct usb_device_state usb_device_state) {
