@@ -72,29 +72,8 @@ bool led_update_user(led_t led_state) {
     return kb_led_update(led_state);
 }
 
-// Draw wireless indicators directly to the LED driver when RGB matrix is
-// disabled. rgb_matrix_set_color() only buffers — when RGB is off the render
-// cycle never flushes, so we write and flush the driver layer ourselves.
-static void draw_wireless_indicators_direct(void) {
-    if (Keyboard_Info.Key_Mode == QMK_BLE_MODE) {
-        uint8_t idx = (Keyboard_Info.Ble_Channel == QMK_BLE_CHANNEL_1) ? LED_BLE_1_INDEX :
-                      (Keyboard_Info.Ble_Channel == QMK_BLE_CHANNEL_2) ? LED_BLE_2_INDEX :
-                                                                          LED_BLE_3_INDEX;
-        rgb_matrix_driver_set_color(idx, COLOR_BLUE);
-        rgb_matrix_driver_set_color(LED_CONNECTION_INDEX, COLOR_BLUE);
-    } else if (Keyboard_Info.Key_Mode == QMK_2P4G_MODE) {
-        rgb_matrix_driver_set_color(LED_2P4G_INDEX, COLOR_GREEN);
-        rgb_matrix_driver_set_color(LED_CONNECTION_INDEX, COLOR_GREEN);
-    }
-    rgb_matrix_driver_flush();
-}
-
 void housekeeping_task_user(void) {
     kb_housekeeping_task();
-
-    if (!rgb_matrix_is_enabled() && Keyboard_Info.Key_Mode != QMK_USB_MODE) {
-        draw_wireless_indicators_direct();
-    }
 }
 
 void board_init(void) {
