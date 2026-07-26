@@ -56,6 +56,9 @@
 #include "version.h" // for QMK_BUILDDATE used in EEPROM magic
 #include "quantum/nvm/eeprom/nvm_eeprom_eeconfig_internal.h"
 #include "quantum/nvm/eeprom/nvm_eeprom_via_internal.h"
+#ifndef NO_CLOSED_SOURCE_LIB
+#include "../../../lib/rdr_lib/rdr_common.h"
+#endif
 
 #ifdef VIAL_ENABLE
 #include "vial.h"
