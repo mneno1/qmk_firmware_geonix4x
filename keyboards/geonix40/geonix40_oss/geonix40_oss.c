@@ -84,7 +84,26 @@ void keyboard_post_init_user(void) {
     kb_keyboard_post_init();
 }
 
+// Saved brightness before "fake off" so we can restore it on next toggle.
+static uint8_t rgb_saved_val = 0;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // Intercept RGB_TOG: use brightness=0 instead of disabling the RGB matrix.
+    // rgb_matrix_driver_flush_pwm_dma_start() cuts LED power when
+    // rgb_matrix_is_enabled() is false, which would prevent indicators from
+    // showing. Keeping the matrix enabled at val=0 avoids that power cut while
+    // still making all LEDs appear off.
+    if (keycode == RGB_TOG && record->event.pressed) {
+        uint8_t cur_val = rgb_matrix_get_val();
+        if (cur_val > 0) {
+            rgb_saved_val = cur_val;
+            rgb_matrix_sethsv_noeeprom(rgb_matrix_get_hue(), rgb_matrix_get_sat(), 0);
+        } else {
+            uint8_t restore = rgb_saved_val > 0 ? rgb_saved_val : RGB_MATRIX_MAXIMUM_BRIGHTNESS / 2;
+            rgb_matrix_sethsv_noeeprom(rgb_matrix_get_hue(), rgb_matrix_get_sat(), restore);
+        }
+        return false;
+    }
     return kb_process_record_common(keycode, record);
 }
 

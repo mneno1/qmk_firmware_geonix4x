@@ -389,10 +389,12 @@ void rgb_matrix_task(void) {
             break;
         case RENDERING:
             rgb_task_render(effect);
-            if (rgb_task_state == FLUSHING) { // ensure we only draw basic indicators once rendering is finished
-                rgb_matrix_indicators();
+            if (effect) {
+                if (rgb_task_state == FLUSHING) { // ensure we only draw basic indicators once rendering is finished
+                    rgb_matrix_indicators();
+                }
+                rgb_matrix_indicators_advanced(&rgb_effect_params);
             }
-            rgb_matrix_indicators_advanced(&rgb_effect_params);
             break;
         case FLUSHING:
             rgb_task_flush(effect);

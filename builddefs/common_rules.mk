@@ -54,6 +54,10 @@ ifeq ($(strip $(DEBUG_ENABLE)),yes)
 	LDFLAGS  += -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref
 endif
 
+CREATE_MAP ?= yes
+ifeq ($(CREATE_MAP),yes)
+	LDFLAGS += -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref
+endif
 
 #---------------- C Compiler Options ----------------
 
