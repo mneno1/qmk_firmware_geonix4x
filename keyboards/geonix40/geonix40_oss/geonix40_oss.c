@@ -18,6 +18,8 @@
  */
 
 #include "keyboard_common.h"
+#include "action_util.h"
+#include "report.h"
 
 #ifndef NO_LED
 #    define NO_LED 255
@@ -107,13 +109,31 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // driver, so routing through host_keyboard_send() is correct here.
 // ============================================================================
 
+// Compute mods the same way the original send_6kro_report/send_nkro_report do:
+// include oneshot mods, then clear them if any regular key is held.
+static uint8_t compute_mods_for_report(void) {
+    uint8_t mods = get_mods() | get_weak_mods();
+    uint8_t osm  = get_oneshot_mods();
+    if (osm) {
+        if (has_oneshot_mods_timed_out()) {
+            clear_oneshot_mods();
+        } else {
+            mods |= osm;
+            if (has_anykey()) {
+                clear_oneshot_mods();
+            }
+        }
+    }
+    return mods;
+}
+
 void User_send_nkro_report(void) {
-    keyboard_report->mods = get_mods() | get_weak_mods() | get_oneshot_mods();
+    keyboard_report->mods = compute_mods_for_report();
     host_keyboard_send(keyboard_report);
 }
 
 void User_send_6kro_report(void) {
-    keyboard_report->mods = get_mods() | get_weak_mods() | get_oneshot_mods();
+    keyboard_report->mods = compute_mods_for_report();
     host_keyboard_send(keyboard_report);
 }
 
