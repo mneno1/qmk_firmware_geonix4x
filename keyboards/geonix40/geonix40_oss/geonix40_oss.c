@@ -54,7 +54,14 @@ led_config_t g_led_config = {
 // clang-format on
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    return kb_rgb_matrix_indicators_common(led_min, led_max);
+    bool result = kb_rgb_matrix_indicators_common(led_min, led_max);
+
+    // Show current BLE channel / 2.4G persistently (not just during pairing or Fn-hold)
+    if (!Led_Rf_Pair_Flg && !Key_Fn_Status && Keyboard_Info.Key_Mode != QMK_USB_MODE) {
+        kb_show_current_connection_mode();
+    }
+
+    return result;
 }
 
 void notify_usb_device_state_change_user(struct usb_device_state usb_device_state) {
@@ -65,8 +72,29 @@ bool led_update_user(led_t led_state) {
     return kb_led_update(led_state);
 }
 
+// Draw wireless indicators directly to the LED driver when RGB matrix is
+// disabled. rgb_matrix_set_color() only buffers — when RGB is off the render
+// cycle never flushes, so we write and flush the driver layer ourselves.
+static void draw_wireless_indicators_direct(void) {
+    if (Keyboard_Info.Key_Mode == QMK_BLE_MODE) {
+        uint8_t idx = (Keyboard_Info.Ble_Channel == QMK_BLE_CHANNEL_1) ? LED_BLE_1_INDEX :
+                      (Keyboard_Info.Ble_Channel == QMK_BLE_CHANNEL_2) ? LED_BLE_2_INDEX :
+                                                                          LED_BLE_3_INDEX;
+        rgb_matrix_driver_set_color(idx, COLOR_BLUE);
+        rgb_matrix_driver_set_color(LED_CONNECTION_INDEX, COLOR_BLUE);
+    } else if (Keyboard_Info.Key_Mode == QMK_2P4G_MODE) {
+        rgb_matrix_driver_set_color(LED_2P4G_INDEX, COLOR_GREEN);
+        rgb_matrix_driver_set_color(LED_CONNECTION_INDEX, COLOR_GREEN);
+    }
+    rgb_matrix_driver_flush();
+}
+
 void housekeeping_task_user(void) {
     kb_housekeeping_task();
+
+    if (!rgb_matrix_is_enabled() && Keyboard_Info.Key_Mode != QMK_USB_MODE) {
+        draw_wireless_indicators_direct();
+    }
 }
 
 void board_init(void) {
@@ -89,10 +117,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 // ============================================================================
 
 void User_send_nkro_report(void) {
+    keyboard_report->mods = get_mods() | get_weak_mods() | get_oneshot_mods();
     host_keyboard_send(keyboard_report);
 }
 
 void User_send_6kro_report(void) {
+    keyboard_report->mods = get_mods() | get_weak_mods() | get_oneshot_mods();
     host_keyboard_send(keyboard_report);
 }
 
