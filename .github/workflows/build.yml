@@ -7,14 +7,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    container:
-      image: ghcr.io/qmk/qmk_cli
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup
-        run: qmk setup -y .
+      - name: Install QMK CLI
+        run: |
+          python3 -m pip install qmk
+
+      - name: Setup QMK
+        run: |
+          qmk setup -y .
 
       - name: Compile
         run: |
