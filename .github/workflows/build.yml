@@ -1,4 +1,4 @@
-name: Geonix41 Vial Firmware Build
+name: Build Geonix41
 
 on:
   workflow_dispatch:
@@ -8,24 +8,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Compile firmware
-        uses: qmk/qmk_action@v1
-        with:
-          command: qmk compile -kb geonix41/geonix41_oss -km vial
-
-      - name: Prepare firmware
+      - name: Install QMK CLI
         run: |
-          cp .build/geonix41_geonix41_oss_vial.bin geonix41_vial.bin
+          python3 -m pip install qmk
 
-      - name: Set build date (JST)
+      - name: Setup QMK
         run: |
-          echo "BUILD_DATE=$(TZ=Asia/Tokyo date +'%Y%m%d')" >> $GITHUB_ENV
+          qmk setup -y .
+
+      - name: Compile
+        run: |
+          qmk compile -kb geonix41/geonix41_oss -km vial
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: geonix41-vial-${{ env.BUILD_DATE }}
-          path: geonix41_vial.bin
+          name: firmware
+          path: |
+            *.uf2
+            *.bin
+            *.hex
