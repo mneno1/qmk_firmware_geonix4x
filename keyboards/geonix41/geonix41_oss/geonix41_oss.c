@@ -152,6 +152,7 @@ void User_send_6kro_report(void) {
     host_keyboard_send(keyboard_report);
 }
 
+#if 0
 void del_key_from_report(uint8_t key) {
     for (uint8_t i = 0; i < KEYBOARD_REPORT_KEYS; i++) {
         if (keyboard_report->keys[i] == key) {
@@ -159,3 +160,4 @@ void del_key_from_report(uint8_t key) {
         }
     }
 }
+#endif
