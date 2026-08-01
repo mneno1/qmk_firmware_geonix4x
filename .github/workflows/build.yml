@@ -22,10 +22,14 @@ jobs:
         run: |
           qmk compile -kb geonix41/geonix41_oss -km vial
 
+      - name: Set build date (JST)
+        run: |
+          echo "BUILD_DATE=$(TZ=Asia/Tokyo date +'%Y%m%d')" >> $GITHUB_ENV
+
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: firmware
+          name: geonix41-vial-${{ env.BUILD_DATE }}
           path: |
             *.uf2
             *.bin
