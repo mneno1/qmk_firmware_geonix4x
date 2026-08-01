@@ -20,7 +20,7 @@ jobs:
 
       - name: Compile
         run: |
-          qmk compile -kb geonix41/geonix41_oss -km default
+          qmk compile -kb geonix41/geonix41_oss -km vial
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
