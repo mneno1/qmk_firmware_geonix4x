@@ -1,0 +1,30 @@
+name: Build Geonix41
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/qmk/qmk_cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        run: qmk setup -y .
+
+      - name: Compile
+        run: |
+          qmk compile -kb geonix41/geonix41_oss -km default
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          path: |
+            *.uf2
+            *.bin
+            *.hex
