@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 extern keymap_config_t keymap_config;
 
-static uint8_t real_mods = 0;
-static uint8_t weak_mods = 0;
+uint8_t real_mods = 0;
+uint8_t weak_mods = 0;
 #ifdef KEY_OVERRIDE_ENABLE
 static uint8_t weak_override_mods = 0;
 static uint8_t suppressed_mods    = 0;
@@ -302,13 +302,11 @@ void send_nkro_report(void) {
  * FIXME: needs doc
  */
 void send_keyboard_report(void) {
-#ifdef NKRO_ENABLE
-    if (host_can_send_nkro() && keymap_config.nkro) {
-        send_nkro_report();
-        return;
+    if (keymap_config.User_Send_Type && keyboard_protocol && keymap_config.nkro) {
+        User_send_nkro_report();
+    } else {
+        User_send_6kro_report();
     }
-#endif
-    send_6kro_report();
 }
 
 /** \brief Get mods
@@ -324,6 +322,7 @@ uint8_t get_mods(void) {
  */
 void add_mods(uint8_t mods) {
     real_mods |= mods;
+    keymap_config.User_Send_Type = false;
 }
 /** \brief del mods
  *
@@ -331,6 +330,7 @@ void add_mods(uint8_t mods) {
  */
 void del_mods(uint8_t mods) {
     real_mods &= ~mods;
+    keymap_config.User_Send_Type = false;
 }
 /** \brief set mods
  *
@@ -533,3 +533,38 @@ void neutralize_flashing_modifiers(uint8_t active_mods) {
     }
 }
 #endif
+
+//-------------------------------------------------------------------------
+
+void User_Send_Key(uint8_t Code, bool Status) {
+    if (Status) {
+        register_code(Code);
+    } else {
+        unregister_code(Code);
+    }
+    // if (keymap_config.nkro) {
+    //     if (Status) {
+    //         if (IS_BASIC_KEYCODE(Code)) {
+    //             nkro_report->bits[Code >> 3] |= 1 << (Code & 7);
+    //         } else if(IS_MODIFIER_KEYCODE(Code)) {
+    //             add_mods(MOD_BIT(Code));
+    //         }
+    //     } else {
+    //         if (IS_BASIC_KEYCODE(Code)) {
+    //             nkro_report->bits[Code >> 3] &= ~(1 << (Code & 7));
+    //         } else if(IS_MODIFIER_KEYCODE(Code)) {
+    //             del_mods(MOD_BIT(Code));
+    //         }
+    //     }
+    //     User_send_nkro_report();
+    // } else {
+    //     if (Status) {
+    //         add_key_byte(keyboard_report, Code);
+    //     } else {
+    //         del_key_byte(keyboard_report, Code);
+    //     }
+    //     User_send_6kro_report();
+    // }
+}
+//-------------------------------------------------------------------------
+
