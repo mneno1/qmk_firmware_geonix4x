@@ -19,6 +19,8 @@ jobs:
           qmk setup -y .
 
       - name: Compile
+        env:
+          LDFLAGS: "-Xlinker --allow-multiple-definition"
         run: |
           qmk compile -kb geonix41/geonix41_oss -km vial
 
