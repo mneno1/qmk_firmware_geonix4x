@@ -18,13 +18,7 @@ jobs:
         run: |
           qmk setup -y .
 
-      - name: Use GCC 10
-        run: |
-          sudo update-alternatives --set arm-none-eabi-gcc /usr/bin/arm-none-eabi-gcc-10 || true
-
       - name: Compile
-        env:
-          LDFLAGS: "-Xlinker --allow-multiple-definition"
         run: |
           qmk compile -kb geonix41/geonix41_oss -km vial
 
