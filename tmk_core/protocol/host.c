@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "debug.h"
 #include "usb_device_state.h"
 
+uint8_t keyboard_protocol = 1;
+
 #ifdef DIGITIZER_ENABLE
 #    include "digitizer.h"
 #endif
